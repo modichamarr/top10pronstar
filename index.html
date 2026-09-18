@@ -472,12 +472,19 @@ let currentBranch = 'ALL';
 let currentQuery = '';
 let sortMode = 'reg'; // 'reg' | 'rank' — switches to 'rank' automatically after a live fetch
 const LIVE_STATS = {}; // username -> {status, ranking, totalSolved, cached, reason}
-const LC_API_BASE = 'https://alfa-leetcode-api.onrender.com';
+// Two independent deployments of the same open-source API — if the first is asleep,
+// rate-limited, or down, we fall back to the second instead of failing outright.
+const LC_MIRRORS = [
+  'https://alfa-leetcode-api.onrender.com',
+  'https://alfa-leetcode-api.vercel.app',
+];
 const CACHE_PREFIX = 'lcstats:';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours — LeetCode ranks don't move minute to minute
-const CONCURRENCY = 8;        // parallel in-flight requests
-const REQUEST_TIMEOUT_MS = 9000;
-const MAX_RETRIES = 1;        // one retry on timeout/network error before giving up
+const CONCURRENCY = 5;        // kept modest — the free API enforces its own hourly rate limit
+const REQUEST_TIMEOUT_MS = 12000;
+const WAKEUP_TIMEOUT_MS = 25000; // free hosts can take a while to spin up from idle
+const MAX_RETRIES = 1;        // one retry per mirror on timeout/network error before moving on
+let rateLimited = false;      // once true, stop hammering a mirror that's told us to back off
 
 function readCache(username){
   try{
@@ -527,6 +534,20 @@ function parseProfilePayload(data){
   };
 }
 
+// One attempt against one mirror. Throws on any failure; caller decides what to do next.
+async function tryMirror(base, username, timeoutMs){
+  const res = await fetchWithTimeout(`${base}/userProfile/${encodeURIComponent(username)}`, timeoutMs);
+  if (res.status === 429){
+    rateLimited = true;
+    throw Object.assign(new Error('rate limited'), { code: 429 });
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const parsed = parseProfilePayload(data);
+  if (!parsed) throw new Error('no usable fields in response');
+  return parsed;
+}
+
 async function fetchOneUser(username){
   const cached = readCache(username);
   if (cached){
@@ -537,25 +558,25 @@ async function fetchOneUser(username){
   LIVE_STATS[username] = { status: 'loading' };
 
   let lastErr = null;
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++){
-    try{
-      const res = await fetchWithTimeout(`${LC_API_BASE}/userProfile/${encodeURIComponent(username)}`, REQUEST_TIMEOUT_MS);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const parsed = parseProfilePayload(data);
-      if (!parsed) throw new Error('no usable fields in response');
-
-      LIVE_STATS[username] = { status: 'ok', ranking: parsed.ranking, totalSolved: parsed.totalSolved, cached: false };
-      writeCache(username, parsed);
-      return;
-    }catch(err){
-      lastErr = err;
-      // brief backoff before the retry, so a transient blip isn't treated as a real miss
-      if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 400));
+  for (const base of LC_MIRRORS){
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++){
+      try{
+        const parsed = await tryMirror(base, username, REQUEST_TIMEOUT_MS);
+        LIVE_STATS[username] = { status: 'ok', ranking: parsed.ranking, totalSolved: parsed.totalSolved, cached: false };
+        writeCache(username, parsed);
+        return;
+      }catch(err){
+        lastErr = err;
+        if (err.code === 429) break; // don't retry a rate-limited mirror, just move to the next one
+        // brief backoff before the retry, so a transient blip isn't treated as a real miss
+        if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 500));
+      }
     }
   }
 
-  const reason = lastErr && lastErr.name === 'AbortError' ? 'timed out' : 'rank unavailable';
+  let reason = 'rank unavailable';
+  if (lastErr?.code === 429) reason = 'rate limited — try again shortly';
+  else if (lastErr?.name === 'AbortError') reason = 'timed out';
   LIVE_STATS[username] = { status: 'error', reason };
 }
 
@@ -576,32 +597,49 @@ async function runPool(items, limit, worker, onProgress){
   await Promise.all(workers);
 }
 
+// Tries to reach any mirror, giving each a generous timeout in case it needs to
+// wake up from idle. Returns the first mirror that responds successfully, or null.
+async function findReachableMirror(sampleUsername, note){
+  for (const base of LC_MIRRORS){
+    note.textContent = `Connecting… (waking up ${new URL(base).hostname}, can take up to 20s on a cold start)`;
+    try{
+      const res = await fetchWithTimeout(`${base}/userProfile/${encodeURIComponent(sampleUsername)}`, WAKEUP_TIMEOUT_MS);
+      // any HTTP response at all (even 404/429) proves the host itself is reachable
+      if (res.status === 429) rateLimited = true;
+      return base;
+    }catch(err){
+      continue; // try the next mirror
+    }
+  }
+  return null;
+}
+
 async function fetchAllLiveStats(){
   const btn = document.getElementById('live-btn');
   const note = document.getElementById('live-note');
   const usernames = [...new Set(DATA.map(r => lcUsername(r.lc)).filter(Boolean))];
 
-  btn.disabled = true;
-  const startedAt = performance.now();
-
-  // quick reachability probe — if this fails, CORS/network is blocking us entirely
-  let reachable = true;
-  try{
-    const probe = await fetchWithTimeout(`${LC_API_BASE}/userProfile/${encodeURIComponent(usernames[0])}`, REQUEST_TIMEOUT_MS);
-    if (!probe.ok && probe.status !== 404) reachable = false; // 404 for a bad username still proves the host is reachable
-  }catch(err){
-    reachable = false;
+  if (usernames.length === 0){
+    note.textContent = 'No LeetCode usernames on file to fetch.';
+    return;
   }
 
-  if (!reachable){
-    note.textContent = '⚠ Live stats couldn\'t be reached from here (this happens on claude.ai\'s published page, or with no internet). Download the HTML file and open it directly in a browser, or run fetch_leetcode_stats.py instead.';
+  btn.disabled = true;
+  rateLimited = false;
+  const startedAt = performance.now();
+
+  const reachableMirror = await findReachableMirror(usernames[0], note);
+  if (!reachableMirror){
+    note.textContent = '⚠ Live stats couldn\'t be reached from here — either this is the claude.ai-hosted page (which blocks outside network calls by design), you\'re offline, or both LeetCode-stats mirrors are down/asleep right now. Download the HTML file and open it directly in a browser, wait a minute and retry, or run fetch_leetcode_stats.py instead.';
     btn.disabled = false;
     return;
   }
 
   let lastRender = 0;
   await runPool(usernames, CONCURRENCY, fetchOneUser, (done, total) => {
-    note.textContent = `Fetching live stats… ${done}/${total}`;
+    note.textContent = rateLimited
+      ? `Fetching live stats… ${done}/${total} (rate-limited by the free API — this may slow down or stall; the Python script avoids this entirely)`
+      : `Fetching live stats… ${done}/${total}`;
     // throttle re-renders so 105 DOM rows don't get rebuilt on every single completion
     const now = performance.now();
     if (now - lastRender > 150 || done === total){
