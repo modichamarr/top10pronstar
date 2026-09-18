@@ -175,6 +175,38 @@
     color:#FBF3E9;
   }
 
+  .live-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.02em;
+    padding:12px 18px;
+    border-radius:10px;
+    border:2px solid var(--maroon);
+    background:var(--maroon);
+    color:#FBF3E9;
+    cursor:pointer;
+    transition:opacity .15s ease;
+    white-space:nowrap;
+  }
+  .live-btn:hover{ opacity:0.88; }
+  .live-btn:disabled{ opacity:0.55; cursor:default; }
+  .live-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+    font-family:'IBM Plex Mono',monospace;
+    min-height:16px;
+  }
+  .rank-badge{
+    display:inline-block;
+    margin-top:4px;
+    font-size:11px;
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--sage);
+  }
+  .rank-badge.err{ color:var(--maroon); }
+
   .section{ margin-top:52px; }
   .section-head{
     display:flex;
@@ -317,9 +349,9 @@
     <h1>BIT &amp; BYB<br><em>Student Directory</em></h1>
     <p class="lede">Registration number, name, email and competitive-programming handles for the Information Technology (BIT) and Cyber Security (BYB) rosters, ordered by registration number.</p>
     <div class="stats">
-      <div class="stat"><div class="num" id="stat-total">105</div><div class="label">Students listed</div></div>
-      <div class="stat"><div class="num" id="stat-bit">81</div><div class="label">BIT roster</div></div>
-      <div class="stat"><div class="num" id="stat-byb">24</div><div class="label">BYB roster</div></div>
+      <div class="stat"><div class="num" id="stat-total">–</div><div class="label">Students listed</div></div>
+      <div class="stat"><div class="num" id="stat-bit">–</div><div class="label">BIT roster</div></div>
+      <div class="stat"><div class="num" id="stat-byb">–</div><div class="label">BYB roster</div></div>
     </div>
   </header>
 
@@ -333,7 +365,9 @@
       <button data-branch="BIT">BIT</button>
       <button data-branch="BYB">BYB</button>
     </div>
+    <button id="live-btn" class="live-btn">⚡ Fetch live LeetCode ranks</button>
   </div>
+  <p id="live-note" class="live-note"></p>
 
   <div id="sections"></div>
 
@@ -344,11 +378,11 @@
 </div>
 
 <script>
-const DATA = [{"reg": "24BIT0001", "name": "JASHNI G", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0045", "name": "TUSHAR CHOUDHARY", "email": "tchoudhary546@gmail.com", "hr": "https://www.hackerrank.com/profile/tchoudhary546", "lc": "https://leetcode.com/u/tushar8e/", "branch": "BIT"}, {"reg": "24BIT0047", "name": "PRABLEEN KAUR JOLLY", "email": "pkj041005@gmail.com", "hr": "https://www.hackerrank.com/profile/pkj041005", "lc": "https://leetcode.com/u/prableen_kaur/", "branch": "BIT"}, {"reg": "24BIT0049", "name": "TEJ GOKANI", "email": "tejmgokani@gmail.com", "hr": "https://www.hackerrank.com/profile/tejmgokani", "lc": "https://leetcode.com/u/tejgokani", "branch": "BIT"}, {"reg": "24BIT0051", "name": "LABHESH KUMAR", "email": "labheshk356@gmail.com", "hr": "https://www.hackerrank.com/profile/labheshk356", "lc": "https://leetcode.com/u/Labhesh_Kumar/", "branch": "BIT"}, {"reg": "24BIT0095", "name": "RITWIJ TRIPATHI", "email": "vasutr2007@gmail.com", "hr": "https://www.hackerrank.com/profile/ritwij_tripathi1", "lc": "https://leetcode.com/u/ritwijtripathi2024vitstudent/", "branch": "BIT"}, {"reg": "24BIT0108", "name": "KANCHARLA HASINI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0111", "name": "ANJALI AGRAHARI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0112", "name": "REYANSHI RAJVANSHI", "email": "reyanshirajvanshi@gmail.com", "hr": "https://www.hackerrank.com/profile/reyanshirajvans1", "lc": "https://leetcode.com/u/Reyanshi/", "branch": "BIT"}, {"reg": "24BIT0117", "name": "SAMITH KOLUR", "email": "samithkolur@gmail.com", "hr": "https://www.hackerrank.com/profile/samithkolur", "lc": "https://leetcode.com/u/samithkolur/", "branch": "BIT"}, {"reg": "24BIT0125", "name": "NIHAR PATIL", "email": "niharpatil137@gmail.com", "hr": null, "lc": "https://share.google/TTc8TADjVJ79YOk0k", "branch": "BIT"}, {"reg": "24BIT0136", "name": "SHIVAM AGRAWAL", "email": "shivamvitv28@gmail.com", "hr": "https://www.hackerrank.com/profile/shivam_agrawal17", "lc": "https://leetcode.com/u/AGshRAivWAamL/", "branch": "BIT"}, {"reg": "24BIT0163", "name": "VARUN KARTHIK R S", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0178", "name": "DHANUSH R", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0181", "name": "REVIN RICHELLE T", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0192", "name": "J UDHAY KIRAN", "email": "udhaykiran741@gmail.com", "hr": "https://www.hackerrank.com/profile/udhaykiran741", "lc": "https://leetcode.com/u/Legend6391/", "branch": "BIT"}, {"reg": "24BIT0193", "name": "SIDDHARTH S", "email": "siddd1002@gmail.com", "hr": "https://www.hackerrank.com/profile/siddd1002", "lc": "https://leetcode.com/u/siddharth_s1002/", "branch": "BIT"}, {"reg": "24BIT0217", "name": "LOKESH DHAKER", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0235", "name": "TANUSHVI TIWARI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0243", "name": "SANKALP PRAVIN BHIWAPURKAR", "email": "sankalp.pravin2024@vitstudent.ac.in", "hr": null, "lc": "https://leetcode.com/u/sankalpblancored/", "branch": "BIT"}, {"reg": "24BIT0245", "name": "GUPTA AARAV RAJU", "email": "guptaaarav987@gmail.com", "hr": "https://www.hackerrank.com/profile/guptaaarav987", "lc": "https://leetcode.com/u/aarav_g_168/", "branch": "BIT"}, {"reg": "24BIT0246", "name": "MOORTHY CHETAN", "email": "moorthychetan06@gmail.com", "hr": "https://www.hackerrank.com/profile/moorthychetan06", "lc": "https://leetcode.com/u/moorthy-chetan/", "branch": "BIT"}, {"reg": "24BIT0250", "name": "YAKKALA VISHNU SAKETH", "email": "yakkalavishnusaketh@gmail.com", "hr": "https://www.hackerrank.com/profile/yakkalavishnusa1", "lc": "https://leetcode.com/u/VishnuSaketh01/", "branch": "BIT"}, {"reg": "24BIT0254", "name": "DHYAAN BHARADWAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0262", "name": "ARVIND MEENAKSHI SUNDARAM", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0263", "name": "TEJAS KUMAWAT", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0266", "name": "DIVYAJYOTI KALIA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0270", "name": "SHRESTH PATHAK", "email": "shresth.pathak230@gmail.com", "hr": null, "lc": "https://leetcode.com/u/5whAGyK6fD/", "branch": "BIT"}, {"reg": "24BIT0293", "name": "NIKHIL RANJAN", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0294", "name": "PREETHAM H", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0327", "name": "HIMANSHU AGARWAL", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0346", "name": "G ASHWIKA", "email": "ashwikaquaso@gmail.com", "hr": "https://www.hackerrank.com/profile/ashwikaquaso", "lc": "https://leetcode.com/u/ashwika06/", "branch": "BIT"}, {"reg": "24BIT0353", "name": "HARSHIT", "email": "singhharshit9900@gmail.com", "hr": "https://www.hackerrank.com/profile/singhharshit9900", "lc": "https://leetcode.com/u/singhharshit9900", "branch": "BIT"}, {"reg": "24BIT0356", "name": "SARTHAK KHANDELWAL", "email": "sarthakhandelwal5106@gmail.com", "hr": "https://www.hackerrank.com/profile/sarthakhandelwa1", "lc": "https://leetcode.com/u/Sarthak5106/", "branch": "BIT"}, {"reg": "24BIT0366", "name": "DEVANSH ARORA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0367", "name": "KAMALNAYAK P", "email": "kamalnayakp@gmail.com", "hr": "https://www.hackerrank.com/profile/kamalnayakp", "lc": "https://leetcode.com/u/kamalnayakp/", "branch": "BIT"}, {"reg": "24BIT0369", "name": "PASUMARTHI ANANTH KUMAR", "email": "ananthkumarpasumarthi5@gmail.com", "hr": "https://www.hackerrank.com/profile/ananthkumarpasu1", "lc": "https://leetcode.com/u/ANANTHKUMAR2006", "branch": "BIT"}, {"reg": "24BIT0374", "name": "THANESH MAHESHWARI", "email": "thanesh5279@gmail.com", "hr": "https://www.hackerrank.com/profile/thanesh5279", "lc": "https://leetcode.com/u/thaneshmaheshwari_04/", "branch": "BIT"}, {"reg": "24BIT0381", "name": "KADAKIA SAMAY RUMIT", "email": "samay4kadakiya@gmail.com", "hr": "https://www.hackerrank.com/profile/samay4kadakiya", "lc": "https://leetcode.com/u/Samay_Kadakia/", "branch": "BIT"}, {"reg": "24BIT0395", "name": "AKSHAT PANDEY", "email": "pandeyakshat086@gmail.com", "hr": "https://www.hackerrank.com/profile/pandeyakshat", "lc": "https://leetcode.com/u/Aksh_t_Pandey/", "branch": "BIT"}, {"reg": "24BIT0396", "name": "PHUSE RISHIKA SACHIN", "email": "rishikaphuse@gmail.com", "hr": "https://www.hackerrank.com/profile/rishikaphuse", "lc": "https://leetcode.com/u/rishikaphuse11/", "branch": "BIT"}, {"reg": "24BIT0399", "name": "MUSKAN SINGH", "email": "singhmuskan3005@gmail.com", "hr": "https://www.hackerrank.com/profile/singhmuskan3005", "lc": "https://leetcode.com/u/MuskanSingh23_/", "branch": "BIT"}, {"reg": "24BIT0411", "name": "AKSHAT AMIT AGARWAL", "email": "agarwalakshat2710@gmail.com", "hr": "https://www.hackerrank.com/profile/agarwalakshat271", "lc": "https://leetcode.com/u/imakshat27/", "branch": "BIT"}, {"reg": "24BIT0433", "name": "PONMAGAL H", "email": "ponmagalh7@gmail.com", "hr": "https://www.hackerrank.com/profile/ponmagalh7", "lc": "https://leetcode.com/u/Ponmagal/", "branch": "BIT"}, {"reg": "24BIT0434", "name": "DARSANI R", "email": "darsanirajarathinam@gmail.com", "hr": "https://www.hackerrank.com/profile/darszz0303", "lc": "https://leetcode.com/u/dars0303/", "branch": "BIT"}, {"reg": "24BIT0438", "name": "TISSYA MALIK", "email": "tissya.malik2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/tissya_malik2024", "lc": "https://leetcode.com/u/Tissya", "branch": "BIT"}, {"reg": "24BIT0441", "name": "RACHANA P", "email": "rachana.p2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/rachanachowdaryp", "lc": "https://leetcode.com/u/rachanachowdary/", "branch": "BIT"}, {"reg": "24BIT0449", "name": "NARASIMHA SAI RAMA SAGAR NIKHIL P", "email": "nikhilpotti76@gmail.com", "hr": "https://www.hackerrank.com/profile/nikhilstudy2006", "lc": "https://leetcode.com/u/Nikhilll121417/", "branch": "BIT"}, {"reg": "24BIT0454", "name": "G P KESHAV", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0459", "name": "HEMANYA SUNIL DARGAR", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0466", "name": "HARINI G", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0483", "name": "DEEKSHA P", "email": "deeksha.prabhakaran2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/deeksha_prabhak1", "lc": "https://leetcode.com/u/Deeksha100906/", "branch": "BIT"}, {"reg": "24BIT0493", "name": "TUSSHAR PRABHU JACRIBETTU", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0511", "name": "ARCHEE JHA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0513", "name": "ANUMOLA SAHAN", "email": "anumolasahan@gmail.com", "hr": "https://www.hackerrank.com/profile/anumolasahan", "lc": "https://leetcode.com/u/anumolasahan/", "branch": "BIT"}, {"reg": "24BIT0517", "name": "TANISHI RAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0527", "name": "SATWIK JAISWAL", "email": "satwikjaiswal7@gmail.com", "hr": "https://www.hackerrank.com/profile/satwikjaiswal7", "lc": "https://leetcode.com/u/Satwik-7/", "branch": "BIT"}, {"reg": "24BIT0531", "name": "KHANAK VERMA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0545", "name": "KRITHIKHA B", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0546", "name": "NETHRAA V S", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0548", "name": "PRAKUL ADHIR JAIN", "email": "prakul.adhir.jain@gmail.com", "hr": "https://www.hackerrank.com/profile/Pracool_Jain", "lc": "https://share.google/qYN9Sg9ajrjcnUxmU", "branch": "BIT"}, {"reg": "24BIT0566", "name": "ISHA S U", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0568", "name": "JOSEPH DANIEL J", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0569", "name": "S PRASANNA VENKATESH", "email": "sprasannavenkatesh17@gmail.com", "hr": "https://www.hackerrank.com/profile/prasannav07", "lc": "https://leetcode.com/u/prasannavenkatesh_07/", "branch": "BIT"}, {"reg": "24BIT0570", "name": "RAJAMUTHUKUMARAN V", "email": "rmk1560@gmail.com", "hr": "https://www.hackerrank.com/profile/rajamuthukumara5", "lc": "https://leetcode.com/u/3fjafgc4W6/", "branch": "BIT"}, {"reg": "24BIT0572", "name": "INIYA K", "email": "iniyakannan518@gmail.com", "hr": "https://www.hackerrank.com/profile/iniyakannan518", "lc": "https://leetcode.com/u/INIYAKANNAN_2007/", "branch": "BIT"}, {"reg": "24BIT0573", "name": "ANBUSELVAM K", "email": "anbuselvamkannan22022007@gmail.com", "hr": "https://www.hackerrank.com/profile/anbuselvam_k2024", "lc": "https://leetcode.com/u/AnbuselvamK/", "branch": "BIT"}, {"reg": "24BIT0574", "name": "SUGUNA G", "email": "gsuguna1510@gmail.com", "hr": "https://www.hackerrank.com/profile/gsuguna1510", "lc": "https://leetcode.com/u/Saravanan2017/", "branch": "BIT"}, {"reg": "24BIT0575", "name": "ISWARYA M", "email": "iswaryamurugan2610@gmail.com", "hr": "https://www.hackerrank.com/profile/iswarya_m2024a", "lc": "https://leetcode.com/u/IswaryaMurugan2610/", "branch": "BIT"}, {"reg": "24BIT0576", "name": "DEVARINTI HARSHITHA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0587", "name": "TANMOY PAUL", "email": "tanmoypaul1987apd@gmail.com", "hr": "https://www.hackerrank.com/profile/tanmoypaul1987a1", "lc": "https://leetcode.com/u/fnfNGNRjVm/", "branch": "BIT"}, {"reg": "24BIT0588", "name": "PRINCE KUMAR", "email": "prince18.08.07@gmail.com", "hr": "https://www.hackerrank.com/profile/prince18_08_07", "lc": "https://leetcode.com/u/princekumar6264/", "branch": "BIT"}, {"reg": "24BIT0590", "name": "RAGHAV JEE OJHA", "email": "raghav.jeeojha@vitstudent.ac.in", "hr": "https://www.hackerrank.com/dashboard", "lc": "https://leetcode.com/u/ojha_raghav/", "branch": "BIT"}, {"reg": "24BIT0608", "name": "RAGGHAV KAMARAJ", "email": "raghavnaidu1470@gmail.com", "hr": "https://www.hackerrank.com/profile/ragghav_kamaraj1", "lc": "https://leetcode.com/u/RagghavKamaraj/", "branch": "BIT"}, {"reg": "24BIT0609", "name": "RISHIKESH SAH TURAHA", "email": "rishisah1492@gmail.com", "hr": "https://www.hackerrank.com/profile/rishisah1492", "lc": "https://leetcode.com/u/rishixcodes/", "branch": "BIT"}, {"reg": "24BIT0614", "name": "BHIWANSHU SHARMA", "email": "bhiwanshusharma@gmail.com", "hr": "https://www.hackerrank.com/profile/bhiwanshusharma", "lc": "https://leetcode.com/u/bhiwanshusharma/", "branch": "BIT"}, {"reg": "24BIT0615", "name": "MALLIDI JAYA VEERA MAHESWARA REDDY", "email": "mallidijayanthreddy1234@gmail.com", "hr": "https://www.hackerrank.com/profile/mallidijayanthr1", "lc": "https://leetcode.com/u/jayanthreddy_143/", "branch": "BIT"}, {"reg": "24BIT0617", "name": "U DEVESHWAR", "email": "deveshwar0592@gmail.com", "hr": "https://www.hackerrank.com/profile/deveshwar0592", "lc": "https://leetcode.com/u/deva0258/", "branch": "BIT"}, {"reg": "24BIT0620", "name": "PIYUSH SAGAR", "email": "sagarpiyush.27@gmail.com", "hr": "https://www.hackerrank.com/profile/sagarpiyush_27", "lc": "https://leetcode.com/u/Piyush-Sagar/", "branch": "BIT"}, {"reg": "24BIT0621", "name": "AMIT RAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0622", "name": "SAHU CHIRAYU AJAY", "email": "chirayuajaysahu01@gmail.com", "hr": "https://www.hackerrank.com/profile/chirayusahu", "lc": "https://leetcode.com/u/ChirayuSahu/", "branch": "BIT"}, {"reg": "24BYB0004", "name": "KURRA LEELA KRISHNA", "email": "leelakrishna2601@gmail.com", "hr": "https://www.hackerrank.com/profile/leelakrishna_ku1", "lc": "https://leetcode.com/u/leelakrishna_101/", "branch": "BYB"}, {"reg": "24BYB0010", "name": "KATRAGADDA VEDA SANKAR", "email": "katragadda.2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/katragaddaveda", "lc": "https://leetcode.com/u/katragaddaveda/", "branch": "BYB"}, {"reg": "24BYB0016", "name": "RAMESHWAR R", "email": "Rameshwar.r2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/rameshwar_r2024", "lc": "https://leetcode.com/u/YeetCode448/", "branch": "BYB"}, {"reg": "24BYB0026", "name": "TRINABHA DIXIT", "email": "dixittrinabha@gmail.com", "hr": "https://www.hackerrank.com/profile/dixittrinabha", "lc": "https://leetcode.com/u/TrinabhaDixit/", "branch": "BYB"}, {"reg": "24BYB0035", "name": "SIDDHESH SRINIVASAN", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0036", "name": "G SHAKUNTHAKUMAR", "email": "shakunth3012@gmail.com", "hr": "https://www.hackerrank.com/profile/gshakunthkumar", "lc": "https://leetcode.com/u/Shak3nth/", "branch": "BYB"}, {"reg": "24BYB0037", "name": "SANJANA K", "email": "sanjana846@gmail.com", "hr": "https://www.hackerrank.com/profile/sanjana846", "lc": "https://leetcode.com/u/Sanjana__846/", "branch": "BYB"}, {"reg": "24BYB0041", "name": "ANKAN ROY", "email": "ankan159357@gmail.com", "hr": "https://www.hackerrank.com/profile/ankan159357", "lc": "https://leetcode.com/u/0xAnkan/", "branch": "BYB"}, {"reg": "24BYB0050", "name": "SWAYAM PRAKASH YADAV", "email": "swayamsb50@gmail.com", "hr": "https://www.hackerrank.com/profile/swayam5342", "lc": "https://leetcode.com/u/swayam5342/", "branch": "BYB"}, {"reg": "24BYB0054", "name": "MEDARAMETLA LIKHITH", "email": "likhithmedarametla@gmail.com", "hr": "https://www.hackerrank.com/profile/likhithmedarame1", "lc": "https://leetcode.com/u/likhithm/", "branch": "BYB"}, {"reg": "24BYB0063", "name": "PRACHI SHANKAR", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0071", "name": "YASHES KARTIK", "email": "yasheskartik7799@gmail.com", "hr": "https://www.hackerrank.com/profile/yashes_kartik201", "lc": "https://leetcode.com/u/yashes-kartik/", "branch": "BYB"}, {"reg": "24BYB0073", "name": "MADHUMITHA R", "email": "madhumitha.2024a@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/madhumitha_2024a", "lc": "https://leetcode.com/u/MadhumithaRaaja2006/", "branch": "BYB"}, {"reg": "24BYB0094", "name": "LAKSH ANISH KHATRI", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0101", "name": "GOVIND B NAIR", "email": "govindbinoj@gmail.com", "hr": "https://www.hackerrank.com/profile/govindbinoj", "lc": "https://leetcode.com/u/GovindNair/", "branch": "BYB"}, {"reg": "24BYB0113", "name": "AVI UPADHYAY", "email": "avee130606@gmail.com", "hr": "https://www.hackerrank.com/profile/avee130606", "lc": "https://leetcode.com/u/YKG0C763vx/", "branch": "BYB"}, {"reg": "24BYB0123", "name": "SRITAM BANIK", "email": "sritam.banik2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/sritam_banik2024", "lc": "https://leetcode.com/u/sritamcodes/", "branch": "BYB"}, {"reg": "24BYB0137", "name": "NISHA RATHI", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0143", "name": "BOJANAPU SAI PRANEETH", "email": "praneeth2006.dev@gmail.com", "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0149", "name": "ANSHUL GUPTA", "email": "Anshulgupta2476@gmail.com", "hr": "https://www.hackerrank.com/profile/anshulgupta2476", "lc": "https://leetcode.com/u/AnZul77", "branch": "BYB"}, {"reg": "24BYB0151", "name": "K SRIRAM", "email": "imsriram093@gmail.com", "hr": "https://www.hackerrank.com/profile/imsriram093", "lc": "https://leetcode.com/u/imsriram093/", "branch": "BYB"}, {"reg": "24BYB0163", "name": "KEVIN T JOHN", "email": "kevintjohn25@gmail.com", "hr": "https://www.hackerrank.com/profile/kevintjohn25", "lc": "https://leetcode.com/u/Kevin_25/", "branch": "BYB"}, {"reg": "24BYB0189", "name": "C PRANAYAA", "email": "saisharano72@gmail.com", "hr": "https://www.hackerrank.com/profile/saisharano72", "lc": "https://leetcode.com/u/ivanovfirwaz/", "branch": "BYB"}, {"reg": "24BYB0194", "name": "GOLANI AMAN DINESH", "email": null, "hr": null, "lc": null, "branch": "BYB"}];
+const DATA = [{"reg": "24BIT0001", "name": "JASHNI G", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0045", "name": "TUSHAR CHOUDHARY", "email": "tchoudhary546@gmail.com", "hr": "https://www.hackerrank.com/profile/tchoudhary546", "lc": "https://leetcode.com/u/tushar8e/", "branch": "BIT"}, {"reg": "24BIT0047", "name": "PRABLEEN KAUR JOLLY", "email": "pkj041005@gmail.com", "hr": "https://www.hackerrank.com/profile/pkj041005", "lc": "https://leetcode.com/u/prableen_kaur/", "branch": "BIT"}, {"reg": "24BIT0049", "name": "TEJ GOKANI", "email": "tejmgokani@gmail.com", "hr": "https://www.hackerrank.com/profile/tejmgokani", "lc": "https://leetcode.com/u/tejgokani", "branch": "BIT"}, {"reg": "24BIT0051", "name": "LABHESH KUMAR", "email": "labheshk356@gmail.com", "hr": "https://www.hackerrank.com/profile/labheshk356", "lc": "https://leetcode.com/u/Labhesh_Kumar/", "branch": "BIT"}, {"reg": "24BIT0095", "name": "RITWIJ TRIPATHI", "email": "vasutr2007@gmail.com", "hr": "https://www.hackerrank.com/profile/ritwij_tripathi1", "lc": "https://leetcode.com/u/ritwijtripathi2024vitstudent/", "branch": "BIT"}, {"reg": "24BIT0108", "name": "KANCHARLA HASINI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0111", "name": "ANJALI AGRAHARI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0112", "name": "REYANSHI RAJVANSHI", "email": "reyanshirajvanshi@gmail.com", "hr": "https://www.hackerrank.com/profile/reyanshirajvans1", "lc": "https://leetcode.com/u/Reyanshi/", "branch": "BIT"}, {"reg": "24BIT0117", "name": "SAMITH KOLUR", "email": "samithkolur@gmail.com", "hr": "https://www.hackerrank.com/profile/samithkolur", "lc": "https://leetcode.com/u/samithkolur/", "branch": "BIT"}, {"reg": "24BIT0125", "name": "NIHAR PATIL", "email": "niharpatil137@gmail.com", "hr": null, "lc": "https://share.google/TTc8TADjVJ79YOk0k", "branch": "BIT"}, {"reg": "24BIT0136", "name": "SHIVAM AGRAWAL", "email": "shivamvitv28@gmail.com", "hr": "https://www.hackerrank.com/profile/shivam_agrawal17", "lc": "https://leetcode.com/u/AGshRAivWAamL/", "branch": "BIT"}, {"reg": "24BIT0163", "name": "VARUN KARTHIK R S", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0178", "name": "DHANUSH R", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0181", "name": "REVIN RICHELLE T", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0192", "name": "J UDHAY KIRAN", "email": "udhaykiran741@gmail.com", "hr": "https://www.hackerrank.com/profile/udhaykiran741", "lc": "https://leetcode.com/u/Legend6391/", "branch": "BIT"}, {"reg": "24BIT0193", "name": "SIDDHARTH S", "email": "siddd1002@gmail.com", "hr": "https://www.hackerrank.com/profile/siddd1002", "lc": "https://leetcode.com/u/siddharth_s1002/", "branch": "BIT"}, {"reg": "24BIT0217", "name": "LOKESH DHAKER", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0235", "name": "TANUSHVI TIWARI", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0243", "name": "SANKALP PRAVIN BHIWAPURKAR", "email": "sankalp.pravin2024@vitstudent.ac.in", "hr": null, "lc": "https://leetcode.com/u/sankalpblancored/", "branch": "BIT"}, {"reg": "24BIT0245", "name": "GUPTA AARAV RAJU", "email": "guptaaarav987@gmail.com", "hr": "https://www.hackerrank.com/profile/guptaaarav987", "lc": "https://leetcode.com/u/aarav_g_168/", "branch": "BIT"}, {"reg": "24BIT0246", "name": "MOORTHY CHETAN", "email": "moorthychetan06@gmail.com", "hr": "https://www.hackerrank.com/profile/moorthychetan06", "lc": "https://leetcode.com/u/moorthy-chetan/", "branch": "BIT"}, {"reg": "24BIT0250", "name": "YAKKALA VISHNU SAKETH", "email": "yakkalavishnusaketh@gmail.com", "hr": "https://www.hackerrank.com/profile/yakkalavishnusa1", "lc": "https://leetcode.com/u/VishnuSaketh01/", "branch": "BIT"}, {"reg": "24BIT0254", "name": "DHYAAN BHARADWAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0262", "name": "ARVIND MEENAKSHI SUNDARAM", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0263", "name": "TEJAS KUMAWAT", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0266", "name": "DIVYAJYOTI KALIA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0270", "name": "SHRESTH PATHAK", "email": "shresth.pathak230@gmail.com", "hr": null, "lc": "https://leetcode.com/u/5whAGyK6fD/", "branch": "BIT"}, {"reg": "24BIT0293", "name": "NIKHIL RANJAN", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0294", "name": "PREETHAM H", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0327", "name": "HIMANSHU AGARWAL", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0346", "name": "G ASHWIKA", "email": "ashwikaquaso@gmail.com", "hr": "https://www.hackerrank.com/profile/ashwikaquaso", "lc": "https://leetcode.com/u/ashwika06/", "branch": "BIT"}, {"reg": "24BIT0353", "name": "HARSHIT", "email": "singhharshit9900@gmail.com", "hr": "https://www.hackerrank.com/profile/singhharshit9900", "lc": "https://leetcode.com/u/singhharshit9900", "branch": "BIT"}, {"reg": "24BIT0356", "name": "SARTHAK KHANDELWAL", "email": "sarthakhandelwal5106@gmail.com", "hr": "https://www.hackerrank.com/profile/sarthakhandelwa1", "lc": "https://leetcode.com/u/Sarthak5106/", "branch": "BIT"}, {"reg": "24BIT0365", "name": "HARSHEET RANJAN", "email": null, "hr": null, "lc": "https://leetcode.com/u/harsheet22/", "branch": "BIT"}, {"reg": "24BIT0366", "name": "DEVANSH ARORA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0367", "name": "KAMALNAYAK P", "email": "kamalnayakp@gmail.com", "hr": "https://www.hackerrank.com/profile/kamalnayakp", "lc": "https://leetcode.com/u/kamalnayakp/", "branch": "BIT"}, {"reg": "24BIT0369", "name": "PASUMARTHI ANANTH KUMAR", "email": "ananthkumarpasumarthi5@gmail.com", "hr": "https://www.hackerrank.com/profile/ananthkumarpasu1", "lc": "https://leetcode.com/u/ANANTHKUMAR2006", "branch": "BIT"}, {"reg": "24BIT0374", "name": "THANESH MAHESHWARI", "email": "thanesh5279@gmail.com", "hr": "https://www.hackerrank.com/profile/thanesh5279", "lc": "https://leetcode.com/u/thaneshmaheshwari_04/", "branch": "BIT"}, {"reg": "24BIT0376", "name": "AAKASH SINHA", "email": null, "hr": null, "lc": "https://leetcode.com/u/Aakash653/", "branch": "BIT"}, {"reg": "24BIT0377", "name": "YASH GOEL", "email": null, "hr": null, "lc": "https://leetcode.com/u/yashgoel11/", "branch": "BIT"}, {"reg": "24BIT0381", "name": "KADAKIA SAMAY RUMIT", "email": "samay4kadakiya@gmail.com", "hr": "https://www.hackerrank.com/profile/samay4kadakiya", "lc": "https://leetcode.com/u/Samay_Kadakia/", "branch": "BIT"}, {"reg": "24BIT0395", "name": "AKSHAT PANDEY", "email": "pandeyakshat086@gmail.com", "hr": "https://www.hackerrank.com/profile/pandeyakshat", "lc": "https://leetcode.com/u/Aksh_t_Pandey/", "branch": "BIT"}, {"reg": "24BIT0396", "name": "PHUSE RISHIKA SACHIN", "email": "rishikaphuse@gmail.com", "hr": "https://www.hackerrank.com/profile/rishikaphuse", "lc": "https://leetcode.com/u/rishikaphuse11/", "branch": "BIT"}, {"reg": "24BIT0399", "name": "MUSKAN SINGH", "email": "singhmuskan3005@gmail.com", "hr": "https://www.hackerrank.com/profile/singhmuskan3005", "lc": "https://leetcode.com/u/MuskanSingh23_/", "branch": "BIT"}, {"reg": "24BIT0411", "name": "AKSHAT AMIT AGARWAL", "email": "agarwalakshat2710@gmail.com", "hr": "https://www.hackerrank.com/profile/agarwalakshat271", "lc": "https://leetcode.com/u/imakshat27/", "branch": "BIT"}, {"reg": "24BIT0415", "name": "RAGHAV KHATOR", "email": null, "hr": null, "lc": "https://leetcode.com/u/CodeBlazerR/", "branch": "BIT"}, {"reg": "24BIT0433", "name": "PONMAGAL H", "email": "ponmagalh7@gmail.com", "hr": "https://www.hackerrank.com/profile/ponmagalh7", "lc": "https://leetcode.com/u/Ponmagal/", "branch": "BIT"}, {"reg": "24BIT0434", "name": "DARSANI R", "email": "darsanirajarathinam@gmail.com", "hr": "https://www.hackerrank.com/profile/darszz0303", "lc": "https://leetcode.com/u/dars0303/", "branch": "BIT"}, {"reg": "24BIT0438", "name": "TISSYA MALIK", "email": "tissya.malik2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/tissya_malik2024", "lc": "https://leetcode.com/u/Tissya", "branch": "BIT"}, {"reg": "24BIT0441", "name": "RACHANA P", "email": "rachana.p2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/rachanachowdaryp", "lc": "https://leetcode.com/u/rachanachowdary/", "branch": "BIT"}, {"reg": "24BIT0449", "name": "NARASIMHA SAI RAMA SAGAR NIKHIL P", "email": "nikhilpotti76@gmail.com", "hr": "https://www.hackerrank.com/profile/nikhilstudy2006", "lc": "https://leetcode.com/u/Nikhilll121417/", "branch": "BIT"}, {"reg": "24BIT0454", "name": "G P KESHAV", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0459", "name": "HEMANYA SUNIL DARGAR", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0466", "name": "HARINI G", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0483", "name": "DEEKSHA P", "email": "deeksha.prabhakaran2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/deeksha_prabhak1", "lc": "https://leetcode.com/u/Deeksha100906/", "branch": "BIT"}, {"reg": "24BIT0493", "name": "TUSSHAR PRABHU JACRIBETTU", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0511", "name": "ARCHEE JHA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0513", "name": "ANUMOLA SAHAN", "email": "anumolasahan@gmail.com", "hr": "https://www.hackerrank.com/profile/anumolasahan", "lc": "https://leetcode.com/u/anumolasahan/", "branch": "BIT"}, {"reg": "24BIT0517", "name": "TANISHI RAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0527", "name": "SATWIK JAISWAL", "email": "satwikjaiswal7@gmail.com", "hr": "https://www.hackerrank.com/profile/satwikjaiswal7", "lc": "https://leetcode.com/u/Satwik-7/", "branch": "BIT"}, {"reg": "24BIT0531", "name": "KHANAK VERMA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0545", "name": "KRITHIKHA B", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0546", "name": "NETHRAA V S", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0548", "name": "PRAKUL ADHIR JAIN", "email": "prakul.adhir.jain@gmail.com", "hr": "https://www.hackerrank.com/profile/Pracool_Jain", "lc": "https://share.google/qYN9Sg9ajrjcnUxmU", "branch": "BIT"}, {"reg": "24BIT0566", "name": "ISHA S U", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0568", "name": "JOSEPH DANIEL J", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0569", "name": "S PRASANNA VENKATESH", "email": "sprasannavenkatesh17@gmail.com", "hr": "https://www.hackerrank.com/profile/prasannav07", "lc": "https://leetcode.com/u/prasannavenkatesh_07/", "branch": "BIT"}, {"reg": "24BIT0570", "name": "RAJAMUTHUKUMARAN V", "email": "rmk1560@gmail.com", "hr": "https://www.hackerrank.com/profile/rajamuthukumara5", "lc": "https://leetcode.com/u/3fjafgc4W6/", "branch": "BIT"}, {"reg": "24BIT0572", "name": "INIYA K", "email": "iniyakannan518@gmail.com", "hr": "https://www.hackerrank.com/profile/iniyakannan518", "lc": "https://leetcode.com/u/INIYAKANNAN_2007/", "branch": "BIT"}, {"reg": "24BIT0573", "name": "ANBUSELVAM K", "email": "anbuselvamkannan22022007@gmail.com", "hr": "https://www.hackerrank.com/profile/anbuselvam_k2024", "lc": "https://leetcode.com/u/AnbuselvamK/", "branch": "BIT"}, {"reg": "24BIT0574", "name": "SUGUNA G", "email": "gsuguna1510@gmail.com", "hr": "https://www.hackerrank.com/profile/gsuguna1510", "lc": "https://leetcode.com/u/Saravanan2017/", "branch": "BIT"}, {"reg": "24BIT0575", "name": "ISWARYA M", "email": "iswaryamurugan2610@gmail.com", "hr": "https://www.hackerrank.com/profile/iswarya_m2024a", "lc": "https://leetcode.com/u/IswaryaMurugan2610/", "branch": "BIT"}, {"reg": "24BIT0576", "name": "DEVARINTI HARSHITHA", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0587", "name": "TANMOY PAUL", "email": "tanmoypaul1987apd@gmail.com", "hr": "https://www.hackerrank.com/profile/tanmoypaul1987a1", "lc": "https://leetcode.com/u/fnfNGNRjVm/", "branch": "BIT"}, {"reg": "24BIT0588", "name": "PRINCE KUMAR", "email": "prince18.08.07@gmail.com", "hr": "https://www.hackerrank.com/profile/prince18_08_07", "lc": "https://leetcode.com/u/princekumar6264/", "branch": "BIT"}, {"reg": "24BIT0590", "name": "RAGHAV JEE OJHA", "email": "raghav.jeeojha@vitstudent.ac.in", "hr": "https://www.hackerrank.com/dashboard", "lc": "https://leetcode.com/u/ojha_raghav/", "branch": "BIT"}, {"reg": "24BIT0608", "name": "RAGGHAV KAMARAJ", "email": "raghavnaidu1470@gmail.com", "hr": "https://www.hackerrank.com/profile/ragghav_kamaraj1", "lc": "https://leetcode.com/u/RagghavKamaraj/", "branch": "BIT"}, {"reg": "24BIT0609", "name": "RISHIKESH SAH TURAHA", "email": "rishisah1492@gmail.com", "hr": "https://www.hackerrank.com/profile/rishisah1492", "lc": "https://leetcode.com/u/rishixcodes/", "branch": "BIT"}, {"reg": "24BIT0614", "name": "BHIWANSHU SHARMA", "email": "bhiwanshusharma@gmail.com", "hr": "https://www.hackerrank.com/profile/bhiwanshusharma", "lc": "https://leetcode.com/u/bhiwanshusharma/", "branch": "BIT"}, {"reg": "24BIT0615", "name": "MALLIDI JAYA VEERA MAHESWARA REDDY", "email": "mallidijayanthreddy1234@gmail.com", "hr": "https://www.hackerrank.com/profile/mallidijayanthr1", "lc": "https://leetcode.com/u/jayanthreddy_143/", "branch": "BIT"}, {"reg": "24BIT0617", "name": "U DEVESHWAR", "email": "deveshwar0592@gmail.com", "hr": "https://www.hackerrank.com/profile/deveshwar0592", "lc": "https://leetcode.com/u/deva0258/", "branch": "BIT"}, {"reg": "24BIT0620", "name": "PIYUSH SAGAR", "email": "sagarpiyush.27@gmail.com", "hr": "https://www.hackerrank.com/profile/sagarpiyush_27", "lc": "https://leetcode.com/u/Piyush-Sagar/", "branch": "BIT"}, {"reg": "24BIT0621", "name": "AMIT RAJ", "email": null, "hr": null, "lc": null, "branch": "BIT"}, {"reg": "24BIT0622", "name": "SAHU CHIRAYU AJAY", "email": "chirayuajaysahu01@gmail.com", "hr": "https://www.hackerrank.com/profile/chirayusahu", "lc": "https://leetcode.com/u/ChirayuSahu/", "branch": "BIT"}, {"reg": "24BYB0004", "name": "KURRA LEELA KRISHNA", "email": "leelakrishna2601@gmail.com", "hr": "https://www.hackerrank.com/profile/leelakrishna_ku1", "lc": "https://leetcode.com/u/leelakrishna_101/", "branch": "BYB"}, {"reg": "24BYB0010", "name": "KATRAGADDA VEDA SANKAR", "email": "katragadda.2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/katragaddaveda", "lc": "https://leetcode.com/u/katragaddaveda/", "branch": "BYB"}, {"reg": "24BYB0016", "name": "RAMESHWAR R", "email": "Rameshwar.r2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/rameshwar_r2024", "lc": "https://leetcode.com/u/YeetCode448/", "branch": "BYB"}, {"reg": "24BYB0026", "name": "TRINABHA DIXIT", "email": "dixittrinabha@gmail.com", "hr": "https://www.hackerrank.com/profile/dixittrinabha", "lc": "https://leetcode.com/u/TrinabhaDixit/", "branch": "BYB"}, {"reg": "24BYB0035", "name": "SIDDHESH SRINIVASAN", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0036", "name": "G SHAKUNTHAKUMAR", "email": "shakunth3012@gmail.com", "hr": "https://www.hackerrank.com/profile/gshakunthkumar", "lc": "https://leetcode.com/u/Shak3nth/", "branch": "BYB"}, {"reg": "24BYB0037", "name": "SANJANA K", "email": "sanjana846@gmail.com", "hr": "https://www.hackerrank.com/profile/sanjana846", "lc": "https://leetcode.com/u/Sanjana__846/", "branch": "BYB"}, {"reg": "24BYB0041", "name": "ANKAN ROY", "email": "ankan159357@gmail.com", "hr": "https://www.hackerrank.com/profile/ankan159357", "lc": "https://leetcode.com/u/0xAnkan/", "branch": "BYB"}, {"reg": "24BYB0050", "name": "SWAYAM PRAKASH YADAV", "email": "swayamsb50@gmail.com", "hr": "https://www.hackerrank.com/profile/swayam5342", "lc": "https://leetcode.com/u/swayam5342/", "branch": "BYB"}, {"reg": "24BYB0054", "name": "MEDARAMETLA LIKHITH", "email": "likhithmedarametla@gmail.com", "hr": "https://www.hackerrank.com/profile/likhithmedarame1", "lc": "https://leetcode.com/u/likhithm/", "branch": "BYB"}, {"reg": "24BYB0063", "name": "PRACHI SHANKAR", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0071", "name": "YASHES KARTIK", "email": "yasheskartik7799@gmail.com", "hr": "https://www.hackerrank.com/profile/yashes_kartik201", "lc": "https://leetcode.com/u/yashes-kartik/", "branch": "BYB"}, {"reg": "24BYB0073", "name": "MADHUMITHA R", "email": "madhumitha.2024a@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/madhumitha_2024a", "lc": "https://leetcode.com/u/MadhumithaRaaja2006/", "branch": "BYB"}, {"reg": "24BYB0094", "name": "LAKSH ANISH KHATRI", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0101", "name": "GOVIND B NAIR", "email": "govindbinoj@gmail.com", "hr": "https://www.hackerrank.com/profile/govindbinoj", "lc": "https://leetcode.com/u/GovindNair/", "branch": "BYB"}, {"reg": "24BYB0113", "name": "AVI UPADHYAY", "email": "avee130606@gmail.com", "hr": "https://www.hackerrank.com/profile/avee130606", "lc": "https://leetcode.com/u/YKG0C763vx/", "branch": "BYB"}, {"reg": "24BYB0123", "name": "SRITAM BANIK", "email": "sritam.banik2024@vitstudent.ac.in", "hr": "https://www.hackerrank.com/profile/sritam_banik2024", "lc": "https://leetcode.com/u/sritamcodes/", "branch": "BYB"}, {"reg": "24BYB0137", "name": "NISHA RATHI", "email": null, "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0143", "name": "BOJANAPU SAI PRANEETH", "email": "praneeth2006.dev@gmail.com", "hr": null, "lc": null, "branch": "BYB"}, {"reg": "24BYB0149", "name": "ANSHUL GUPTA", "email": "Anshulgupta2476@gmail.com", "hr": "https://www.hackerrank.com/profile/anshulgupta2476", "lc": "https://leetcode.com/u/AnZul77", "branch": "BYB"}, {"reg": "24BYB0151", "name": "K SRIRAM", "email": "imsriram093@gmail.com", "hr": "https://www.hackerrank.com/profile/imsriram093", "lc": "https://leetcode.com/u/imsriram093/", "branch": "BYB"}, {"reg": "24BYB0163", "name": "KEVIN T JOHN", "email": "kevintjohn25@gmail.com", "hr": "https://www.hackerrank.com/profile/kevintjohn25", "lc": "https://leetcode.com/u/Kevin_25/", "branch": "BYB"}, {"reg": "24BYB0189", "name": "C PRANAYAA", "email": "saisharano72@gmail.com", "hr": "https://www.hackerrank.com/profile/saisharano72", "lc": "https://leetcode.com/u/ivanovfirwaz/", "branch": "BYB"}, {"reg": "24BYB0194", "name": "GOLANI AMAN DINESH", "email": null, "hr": null, "lc": null, "branch": "BYB"}];
 
 const branchMeta = {
   BIT: { title: "BIT — Information Technology", sub: "Registration numbers 24BIT0001 – 24BIT0622" },
-  BYB: { title: "BYB — Cyber Security Engineering", sub: "Registration numbers 24BYB0004 – 24BYB0194" }
+  BYB: { title: "BYB _ Cyber Security Engineering", sub: "Registration numbers 24BYB0004 – 24BYB0194" }
 };
 
 const mailIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>`;
@@ -365,7 +399,28 @@ function pill(url, label, cls, icon){
   return `<a class="link-pill ${cls}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon}${label}</a>`;
 }
 
+function lcUsername(url){
+  if (!url) return null;
+  const m = url.match(/leetcode\.com\/u\/([^\/]+)\/?/i);
+  return m ? m[1] : null;
+}
+
+function rankBadgeHtml(username){
+  if (!username) return '';
+  const entry = LIVE_STATS[username];
+  if (!entry) return '';
+  if (entry.status === 'loading') return `<div class="rank-badge">fetching…</div>`;
+  if (entry.status === 'error') return `<div class="rank-badge err">${esc(entry.reason || 'rank unavailable')}</div>`;
+  const parts = [];
+  if (entry.ranking) parts.push(`Rank #${Number(entry.ranking).toLocaleString()}`);
+  if (entry.totalSolved !== undefined && entry.totalSolved !== null) parts.push(`${entry.totalSolved} solved`);
+  const cachedTag = entry.cached ? ' (cached)' : '';
+  if (!parts.length) return `<div class="rank-badge err">no data</div>`;
+  return `<div class="rank-badge">${esc(parts.join(' · ') + cachedTag)}</div>`;
+}
+
 function rowHtml(rec){
+  const username = lcUsername(rec.lc);
   return `
   <tr>
     <td class="col-reg reg-no">${esc(rec.reg)}</td>
@@ -374,7 +429,10 @@ function rowHtml(rec){
     <td class="col-links">
       <div class="pills">
         ${pill(rec.hr, 'HackerRank', 'hr', hrIcon)}
-        ${pill(rec.lc, 'LeetCode', 'lc', lcIcon)}
+        <span>
+          ${pill(rec.lc, 'LeetCode', 'lc', lcIcon)}
+          ${rankBadgeHtml(username)}
+        </span>
       </div>
     </td>
   </tr>`;
@@ -408,6 +466,162 @@ function tableHtml(branch, records){
 
 let currentBranch = 'ALL';
 let currentQuery = '';
+const LIVE_STATS = {}; // username -> {status, ranking, totalSolved, cached, reason}
+const LC_API_BASE = 'https://alfa-leetcode-api.onrender.com';
+const CACHE_PREFIX = 'lcstats:';
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours — LeetCode ranks don't move minute to minute
+const CONCURRENCY = 8;        // parallel in-flight requests
+const REQUEST_TIMEOUT_MS = 9000;
+const MAX_RETRIES = 1;        // one retry on timeout/network error before giving up
+
+function readCache(username){
+  try{
+    const raw = localStorage.getItem(CACHE_PREFIX + username);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.ts > CACHE_TTL_MS) return null;
+    return parsed;
+  }catch(err){ return null; } // storage disabled/unavailable — just skip caching
+}
+
+function writeCache(username, data){
+  try{
+    localStorage.setItem(CACHE_PREFIX + username, JSON.stringify({ ...data, ts: Date.now() }));
+  }catch(err){ /* storage full or disabled — non-fatal, we just won't cache */ }
+}
+
+function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+// Pull ranking + solved-count from whichever shape the API happens to return —
+// different deployments of this open-source API key their fields slightly differently.
+function parseProfilePayload(data){
+  if (!data || typeof data !== 'object') return null;
+  if (data.errors || data.error) return null;
+
+  const ranking = data.ranking ?? data.profile?.ranking ?? null;
+  const totalSolved =
+    data.totalSolved ??
+    data.solvedProblem ??
+    data.matchedUser?.submitStatsGlobal?.acSubmissionNum?.find(x => x.difficulty === 'All')?.count ??
+    null;
+
+  const rankingNum = Number(ranking);
+  const solvedNum = Number(totalSolved);
+  const hasRanking = Number.isFinite(rankingNum) && rankingNum > 0;
+  const hasSolved = Number.isFinite(solvedNum) && solvedNum >= 0;
+
+  if (!hasRanking && !hasSolved) return null; // nothing usable — treat as a miss, don't guess
+
+  return {
+    ranking: hasRanking ? rankingNum : null,
+    totalSolved: hasSolved ? solvedNum : null,
+  };
+}
+
+async function fetchOneUser(username){
+  const cached = readCache(username);
+  if (cached){
+    LIVE_STATS[username] = { status: 'ok', ranking: cached.ranking, totalSolved: cached.totalSolved, cached: true };
+    return;
+  }
+
+  LIVE_STATS[username] = { status: 'loading' };
+
+  let lastErr = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++){
+    try{
+      const res = await fetchWithTimeout(`${LC_API_BASE}/userProfile/${encodeURIComponent(username)}`, REQUEST_TIMEOUT_MS);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const parsed = parseProfilePayload(data);
+      if (!parsed) throw new Error('no usable fields in response');
+
+      LIVE_STATS[username] = { status: 'ok', ranking: parsed.ranking, totalSolved: parsed.totalSolved, cached: false };
+      writeCache(username, parsed);
+      return;
+    }catch(err){
+      lastErr = err;
+      // brief backoff before the retry, so a transient blip isn't treated as a real miss
+      if (attempt < MAX_RETRIES) await new Promise(r => setTimeout(r, 400));
+    }
+  }
+
+  const reason = lastErr && lastErr.name === 'AbortError' ? 'timed out' : 'rank unavailable';
+  LIVE_STATS[username] = { status: 'error', reason };
+}
+
+// Runs `items` through `worker` with at most `limit` in flight at once,
+// calling `onProgress` after each completion so the UI can update live.
+async function runPool(items, limit, worker, onProgress){
+  let idx = 0;
+  let completed = 0;
+  async function next(){
+    while (idx < items.length){
+      const my = idx++;
+      await worker(items[my]);
+      completed++;
+      onProgress(completed, items.length);
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, items.length) }, next);
+  await Promise.all(workers);
+}
+
+async function fetchAllLiveStats(){
+  const btn = document.getElementById('live-btn');
+  const note = document.getElementById('live-note');
+  const usernames = [...new Set(DATA.map(r => lcUsername(r.lc)).filter(Boolean))];
+
+  btn.disabled = true;
+  const startedAt = performance.now();
+
+  // quick reachability probe — if this fails, CORS/network is blocking us entirely
+  let reachable = true;
+  try{
+    const probe = await fetchWithTimeout(`${LC_API_BASE}/userProfile/${encodeURIComponent(usernames[0])}`, REQUEST_TIMEOUT_MS);
+    if (!probe.ok && probe.status !== 404) reachable = false; // 404 for a bad username still proves the host is reachable
+  }catch(err){
+    reachable = false;
+  }
+
+  if (!reachable){
+    note.textContent = '⚠ Live stats couldn\'t be reached from here (this happens on claude.ai\'s published page, or with no internet). Download the HTML file and open it directly in a browser, or run fetch_leetcode_stats.py instead.';
+    btn.disabled = false;
+    return;
+  }
+
+  let lastRender = 0;
+  await runPool(usernames, CONCURRENCY, fetchOneUser, (done, total) => {
+    note.textContent = `Fetching live stats… ${done}/${total}`;
+    // throttle re-renders so 105 DOM rows don't get rebuilt on every single completion
+    const now = performance.now();
+    if (now - lastRender > 150 || done === total){
+      render();
+      lastRender = now;
+    }
+  });
+
+  const okCount = Object.values(LIVE_STATS).filter(v => v.status === 'ok').length;
+  const cachedCount = Object.values(LIVE_STATS).filter(v => v.cached).length;
+  const elapsed = ((performance.now() - startedAt) / 1000).toFixed(1);
+  note.textContent = `Loaded ${okCount}/${usernames.length} profiles in ${elapsed}s` +
+    (cachedCount ? ` (${cachedCount} from cache)` : '') +
+    `. Source: community LeetCode API — unreadable or private profiles are marked accordingly rather than guessed.`;
+  btn.disabled = false;
+}
+
+document.getElementById('live-btn').addEventListener('click', fetchAllLiveStats);
+
+function updateHeaderStats(){
+  document.getElementById('stat-total').textContent = DATA.length;
+  document.getElementById('stat-bit').textContent = DATA.filter(r => r.branch === 'BIT').length;
+  document.getElementById('stat-byb').textContent = DATA.filter(r => r.branch === 'BYB').length;
+}
+updateHeaderStats();
 
 function render(){
   const q = currentQuery.trim().toLowerCase();
