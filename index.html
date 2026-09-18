@@ -365,6 +365,10 @@
       <button data-branch="BIT">BIT</button>
       <button data-branch="BYB">BYB</button>
     </div>
+    <div class="branch-toggle" id="sort-toggle">
+      <button data-sort="reg" class="active">Sort: Reg. No.</button>
+      <button data-sort="rank">Sort: LeetCode Rank</button>
+    </div>
     <button id="live-btn" class="live-btn">⚡ Fetch live LeetCode ranks</button>
   </div>
   <p id="live-note" class="live-note"></p>
@@ -372,7 +376,7 @@
   <div id="sections"></div>
 
   <footer>
-    <span>Sorted ascending by registration number within each branch.</span>
+    <span id="footer-sort-desc">Sorted ascending by registration number within each branch.</span>
     <span id="footer-count">105 records</span>
   </footer>
 </div>
@@ -382,7 +386,7 @@ const DATA = [{"reg": "24BIT0001", "name": "JASHNI G", "email": null, "hr": null
 
 const branchMeta = {
   BIT: { title: "BIT — Information Technology", sub: "Registration numbers 24BIT0001 – 24BIT0622" },
-  BYB: { title: "BYB _ Cyber Security Engineering", sub: "Registration numbers 24BYB0004 – 24BYB0194" }
+  BYB: { title: "Cyber Security Engineering", sub: "Registration numbers 24BYB0004 – 24BYB0194" }
 };
 
 const mailIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>`;
@@ -466,6 +470,7 @@ function tableHtml(branch, records){
 
 let currentBranch = 'ALL';
 let currentQuery = '';
+let sortMode = 'reg'; // 'reg' | 'rank' — switches to 'rank' automatically after a live fetch
 const LIVE_STATS = {}; // username -> {status, ranking, totalSolved, cached, reason}
 const LC_API_BASE = 'https://alfa-leetcode-api.onrender.com';
 const CACHE_PREFIX = 'lcstats:';
@@ -608,9 +613,16 @@ async function fetchAllLiveStats(){
   const okCount = Object.values(LIVE_STATS).filter(v => v.status === 'ok').length;
   const cachedCount = Object.values(LIVE_STATS).filter(v => v.cached).length;
   const elapsed = ((performance.now() - startedAt) / 1000).toFixed(1);
+
+  // switch to rank order now that we actually have ranks to sort by
+  sortMode = 'rank';
+  document.querySelectorAll('#sort-toggle button').forEach(b => b.classList.remove('active'));
+  document.querySelector('#sort-toggle button[data-sort="rank"]').classList.add('active');
+  render();
+
   note.textContent = `Loaded ${okCount}/${usernames.length} profiles in ${elapsed}s` +
     (cachedCount ? ` (${cachedCount} from cache)` : '') +
-    `. Source: community LeetCode API — unreadable or private profiles are marked accordingly rather than guessed.`;
+    `. Rows are now sorted best-to-worst by live rank — switch back with "Sort: Reg. No." above. Source: community LeetCode API — unreadable or private profiles are marked accordingly rather than guessed.`;
   btn.disabled = false;
 }
 
@@ -623,6 +635,28 @@ function updateHeaderStats(){
 }
 updateHeaderStats();
 
+function sortRecords(records){
+  if (sortMode !== 'rank') return records; // already in reg-no order from DATA
+
+  const ranked = [];
+  const unranked = [];
+  for (const r of records){
+    const username = lcUsername(r.lc);
+    const entry = username ? LIVE_STATS[username] : null;
+    if (entry && entry.status === 'ok' && entry.ranking){
+      ranked.push(r);
+    } else {
+      unranked.push(r); // no LeetCode, not fetched yet, or fetch failed — pushed to the end
+    }
+  }
+  ranked.sort((a, b) => {
+    const rankA = LIVE_STATS[lcUsername(a.lc)].ranking;
+    const rankB = LIVE_STATS[lcUsername(b.lc)].ranking;
+    return rankA - rankB; // lower LeetCode rank number = better
+  });
+  return [...ranked, ...unranked];
+}
+
 function render(){
   const q = currentQuery.trim().toLowerCase();
   const filtered = DATA.filter(r => {
@@ -631,8 +665,8 @@ function render(){
     return r.name.toLowerCase().includes(q) || r.reg.toLowerCase().includes(q);
   });
 
-  const bit = filtered.filter(r => r.branch === 'BIT');
-  const byb = filtered.filter(r => r.branch === 'BYB');
+  const bit = sortRecords(filtered.filter(r => r.branch === 'BIT'));
+  const byb = sortRecords(filtered.filter(r => r.branch === 'BYB'));
 
   const container = document.getElementById('sections');
   let html = '';
@@ -643,6 +677,9 @@ function render(){
   }
   container.innerHTML = html;
   document.getElementById('footer-count').textContent = `${filtered.length} record${filtered.length===1?'':'s'} shown`;
+  document.getElementById('footer-sort-desc').textContent = sortMode === 'rank'
+    ? 'Sorted best-to-worst by live LeetCode global rank within each branch (unranked students listed last).'
+    : 'Sorted ascending by registration number within each branch.';
 }
 
 document.getElementById('search').addEventListener('input', e => {
@@ -656,6 +693,15 @@ document.getElementById('branch-toggle').addEventListener('click', e => {
   document.querySelectorAll('#branch-toggle button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentBranch = btn.dataset.branch;
+  render();
+});
+
+document.getElementById('sort-toggle').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('#sort-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  sortMode = btn.dataset.sort;
   render();
 });
 
